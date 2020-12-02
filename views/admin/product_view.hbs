@@ -1,0 +1,246 @@
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>CRUD Node.js and Mysql</title>
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+</head>
+<style>
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #eee;
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+  .zoom {
+    padding: 50px;
+    transition: transform .2s;
+    /* Animation */
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+  }
+
+  .zoom:hover {
+    transform: scale(1.5);
+    /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
+  }
+</style>
+
+<body>
+  <div class="container">
+    <h1>Hi {{id}} {{data}} ADMIN!</h1>
+    <h2>Product List</h2>
+    <button class="btn btn-success" data-toggle="modal" data-target="#myModalAdd">Add New</button>
+    <a href="/logout" class="btn btn-danger">Logout</a>
+    <table class="table table-striped" id="mytable">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Product ID</th>
+          <th>Product Name</th>
+          <th>Price</th>
+          <th>Image</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each results}}
+        {{#if isNull}}
+        <tr>
+          <td>Nothing to see here</td>
+          <td>Nothing to see here</td>
+          <td>Nothing to see here</td>
+          <td>Nothing to see here</td>
+          <td>Nothing to see here</td>
+          <td>Nothing to see here</td>
+        </tr>
+        {{else}}
+        <tr>
+          <td>{{ inc @index }}</td>
+          <td>{{ product_id }}</td>
+          <td>{{ product_name }}</td>
+          <td>Rp. {{ format product_price }}</td>
+          <td><img class="zoom image" src="{{ file }}" width="20px" height="20px"></td>
+          <td>
+            <a href="javascript:void(0);" class="btn btn-sm btn-info edit" data-id="{{ product_id }}"
+              data-product_name="{{ product_name }}" data-product_price="{{ product_price }}"
+              data-image="{{ file }}">Edit</a>
+            <a href="javascript:void(0);" class="btn btn-sm btn-danger delete" data-id="{{ product_id }}">Delete</a>
+          </td>
+        </tr>
+        {{/if}}
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Add New Product Modal-->
+  <div class="container">
+    <form action="/save" method="post" enctype="multipart/form-data">
+      <div class="modal fade" id="myModalAdd" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Add New Product</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <input type="text" name="product_name" class="form-control" placeholder="Product Name" required>
+              </div>
+              <div class="form-group">
+                <input type="number" name="product_price" class="form-control" placeholder="Price" required>
+              </div>
+              <div class="form-group">
+                <label for="save">Your File</label>
+                <img id="save" width="100px" height="100px" src="">
+              </div>
+              <div class="form-group">
+                <input type="file" onchange="readURLsave(this);" accept="image/*" name="image">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Edit Product Modal-->
+  <form action="/update" method="post" enctype="multipart/form-data">
+    <div class="modal fade" id="EditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Edit Product</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <input type="text" name="product_name" class="form-control product_name" placeholder="Product Name"
+                required>
+            </div>
+            <div class="form-group">
+              <input type="number" name="product_price" class="form-control price" placeholder="Price" required>
+            </div>
+            <div class="form-group">
+              <div class="row">
+                <div class="col-md-6">
+                  <label for="image">Old Picture</label>
+                  <img id="image" src="" name="old" width="100px" height="100px">
+                </div>
+                <div class="col-md-6" id="hide">
+                  <label for="send">New Picture</label>
+                  <img id="send" src="" width="100px" height="100px">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <input type="file" onchange="readURL(this);" accept="image/*" name="file">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <input type="hidden" name="id" class="product_id">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Update</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <!-- Delete Product Modal-->
+  <form id="add-row-form" action="/delete" method="post">
+    <div class="modal fade" id="DeleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="myModalLabel">Delete Product</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <strong>Are You Sure To Delete This Data?</strong>
+          </div>
+          <div class="modal-footer">
+            <input type="hidden" name="product_id" class="form-control product_id2" required>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-success">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+  <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $('#hide').hide();
+      //showing data to modal for edit record
+      $('#mytable').on('click', '.edit', function () {
+        var product_id = $(this).data('id');
+        var product_name = $(this).data('product_name');
+        var product_price = $(this).data('product_price');
+        var image = $(this).data('image');
+        $('#EditModal').modal('show');
+        $('.product_name').val(product_name);
+        $('.price').val(product_price);
+        $('.product_id').val(product_id);
+        $('#image').attr("src", image);
+      });
+      //showing modal for delete record
+      $('#mytable').on('click', '.delete', function () {
+        var product_id = $(this).data('id');
+        $('#DeleteModal').modal('show');
+        $('.product_id2').val(product_id);
+      });
+    });
+
+    function readURL(input) {
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          $('#hide').show();
+          $('#send')
+            .attr('src', e.target.result)
+            .width(100)
+            .height(100)
+            .show();
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function readURLsave(input) {
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          $('#save').attr('src', e.target.result)
+            .width(100)
+            .height(100)
+            .show();
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+  </script>
+</body>
+
+</html>

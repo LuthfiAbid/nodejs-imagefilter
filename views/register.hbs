@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <title>Register Form Tutorial</title>
+  <style>
+    .login-form {
+      width: 300px;
+      margin: 0 auto;
+      font-family: Tahoma, Geneva, sans-serif;
+    }
+
+    .login-form h1 {
+      text-align: center;
+      color: #4d4d4d;
+      font-size: 24px;
+      padding: 20px 0 20px 0;
+    }
+
+    .login-form input[type="password"],
+    .login-form input[type="text"] {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #dddddd;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+    }
+
+    .login-form input[type="email"] {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #dddddd;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+    }
+
+    .login-form select {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #dddddd;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+    }
+
+    .login-form input[type="submit"] {
+      width: 100%;
+      padding: 15px;
+      background-color: #535b63;
+      border: 0;
+      box-sizing: border-box;
+      cursor: pointer;
+      font-weight: bold;
+      color: #ffffff;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-form">
+    <h1>Register Form</h1>
+    {{!-- {{# if error }}
+      {{# each error }}
+        <p class="alert alert-danger">{{ error }}</p>
+      {{/each}}
+    {{/if}} --}}
+
+    <form action="/post-register" method="POST">
+      <input type="email" name="email" placeholder="Email">
+      <input type="text" name="username" placeholder="Username" />
+      <input type="password" name="password" placeholder="Password" />
+      <select name="role" class="form-group" required>
+        <option disabled selected>Select Role</option>
+        {{#each results}}
+        <option value="{{ id }}">{{ role_name }}</option>
+        {{/each}}
+      </select>
+      <input type="password" name="repassword" placeholder="Re - password">
+      <input type="submit" />
+  </div>
+  </form>
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+  <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</body>
+
+</html>
